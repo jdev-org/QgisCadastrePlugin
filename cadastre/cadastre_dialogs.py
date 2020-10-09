@@ -930,6 +930,7 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
         self.btSelectionnerLieu.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'select.png')))
         self.btExportProprietaire.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'releve.png')))
         self.btExportParcelleProprietaire.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'releve.png')))
+        self.btResetCommuneProprietaire.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'delete.png')))
         self.btResetProprietaire.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'delete.png')))
         self.btResetParcelleProprietaire.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'delete.png')))
         self.btCentrerProprietaire.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'centrer.png')))
@@ -1078,6 +1079,27 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
                 'chosenFeature': None,
                 'connector': None,
                 'resetWidget': self.btResetParcelleProprietaire
+            },
+            'commune_proprietaire': {
+                'widget': self.liCommuneProprietaire,
+                'labelAttribute': 'tex2',
+                'table': 'geo_commune',
+                'geomCol': 'geom',
+                'sql': '',
+                'layer': None,
+                'request': None,
+                'attributes': ['ogc_fid', 'tex2', 'idu', 'geo_commune', 'geom', 'lot'],
+                'orderBy': ['tex2'],
+                'features': None,
+                'chosenFeature': None,
+                'resetWidget': self.btResetCommuneProprietaire,
+                'children': [
+                    {
+                        'key': 'section',
+                        'fkey': 'geo_commune',
+                        'getIfNoFeature': True
+                    }
+                ]
             }
         }
 
@@ -1169,6 +1191,7 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
 
         # setup some gui items
         self.setupSearchCombobox('commune', None, 'sql')
+        self.setupSearchCombobox('commune_proprietaire', None, 'sql')
         # self.setupSearchCombobox('section', None, 'sql')
 
         # Check majic content
@@ -1245,7 +1268,7 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
         if not self.hasMajicDataProp:
             self.qc.updateLog(
                 u"<b>Pas de données MAJIC propriétaires</b> -> désactivation de la recherche de propriétaires")
-
+       
     def setupSearchCombobox(self, combo, filterExpression=None, queryMode='qgis'):
         """
         Fil given combobox with data
@@ -1271,7 +1294,7 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
 
         self.searchComboBoxes[combo]['layer'] = layer
         if layer:
-
+            
             # Get all features
             keepattributes = self.searchComboBoxes[combo]['attributes']
             request = QgsFeatureRequest().setSubsetOfAttributes(

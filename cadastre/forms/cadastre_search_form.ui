@@ -229,8 +229,9 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="1">
-              <widget class="QComboBox" name="liParcelleProprietaire">
+             <!--Combo-->
+             <item row="0" column="1">
+              <widget class="QComboBox" name="liCommuneProprietaire">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -242,7 +243,7 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="1">
+             <item row="1" column="1">
               <widget class="QComboBox" name="liProprietaire">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -255,7 +256,35 @@
                </property>
               </widget>
              </item>
+             <item row="2" column="1">
+              <widget class="QComboBox" name="liParcelleProprietaire">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="editable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <!--Labels-->
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_6">
+               <property name="text">
+                <string>Commune</string>
+               </property>
+              </widget>
+             </item>
              <item row="1" column="0">
+              <widget class="QLabel" name="label_4">
+               <property name="text">
+                <string>Nom</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
               <widget class="QLabel" name="label_3">
                <property name="maximumSize">
                 <size>
@@ -268,14 +297,8 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_4">
-               <property name="text">
-                <string>Nom</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="3">
+            <!--Export Buttons-->
+             <item row="2" column="3">
               <widget class="QToolButton" name="btExportParcelleProprietaire">
                <property name="toolTip">
                 <string>Exporter le relevé parcellaire</string>
@@ -285,7 +308,18 @@
                </property>
               </widget>
              </item>
+             <!--Reset Buttons-->
              <item row="0" column="2">
+              <widget class="QToolButton" name="btResetCommuneProprietaire">
+               <property name="toolTip">
+                <string>Retour à l'ensemble des communes</string>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
               <widget class="QToolButton" name="btResetProprietaire">
                <property name="toolTip">
                 <string>Retour à l'ensemble des parcelles</string>
@@ -295,7 +329,7 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="2">
+             <item row="2" column="2">
               <widget class="QToolButton" name="btResetParcelleProprietaire">
                <property name="toolTip">
                 <string>Retour à l'ensemble des parcelles</string>
@@ -387,10 +421,12 @@ p, li { white-space: pre-wrap; }
   <tabstop>btCentrerLieu</tabstop>
   <tabstop>btZoomerLieu</tabstop>
   <tabstop>btSelectionnerLieu</tabstop>
+  <tabstop>liCommuneProprietaire</tabstop>
   <tabstop>liProprietaire</tabstop>
   <tabstop>liParcelleProprietaire</tabstop>
   <tabstop>btResetProprietaire</tabstop>
   <tabstop>btExportProprietaire</tabstop>
+  <tabstop>btResetCommuneProprietaire</tabstop>
   <tabstop>btResetParcelleProprietaire</tabstop>
   <tabstop>btExportParcelleProprietaire</tabstop>
   <tabstop>btCentrerProprietaire</tabstop>
