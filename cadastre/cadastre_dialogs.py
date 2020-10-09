@@ -1294,7 +1294,7 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
 
         self.searchComboBoxes[combo]['layer'] = layer
         if layer:
-            
+
             # Get all features
             keepattributes = self.searchComboBoxes[combo]['attributes']
             request = QgsFeatureRequest().setSubsetOfAttributes(
@@ -1454,16 +1454,32 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
             sql += ' ORDER BY c.tex2, v.natvoi, v.libvoi'
 
         if key == 'proprietaire':
-            sql = " SELECT trim(ddenom) AS k, MyStringAgg(comptecommunal, ',') AS cc, dnuper"  # , c.ccocom"
-            sql += ' FROM proprietaire p'
-            # ~ sql+= ' INNER JOIN commune c ON c.ccocom = p.ccocom'
+            communePropCb = self.searchComboBoxes['commune_proprietaire']
+            attr = None
+            # get combo feature if selected
+            if 'chosenFeature' in communePropCb and communePropCb['chosenFeature'] is not None:
+                attr = communePropCb['chosenFeature']['geo_commune']
+            
+            # create request to get owners and filter on city if selected first
+            sql = " SELECT trim(ddenom) AS k, MyStringAgg(comptecommunal, ',') AS cc, dnuper"
+            if attr is not None:
+                sql += ", p.ccocom, c.commune"
+            sql += " FROM proprietaire p"
+            if attr is not None:
+                sql+= " INNER JOIN commune c ON c.ccocom = p.ccocom"
             sql += " WHERE 2>1"
             for sv in searchValues:
                 sql += " AND ddenom LIKE %s" % self.connector.quoteString('%' + sv + '%')
-            sql += ' GROUP BY dnuper, ddenom, dlign4'  # , c.ccocom'
-            sql += ' ORDER BY ddenom'  # , c.ccocom'
+            if attr is not None:
+                sql += " AND c.commune LIKE %s" % self.connector.quoteString('%' + attr + '%')
+            sql += ' GROUP BY dnuper, ddenom, dlign4'  
+            if attr is not None:
+                sql += " , p.ccocom, c.commune"
+            sql += ' ORDER BY ddenom'
         self.dbType = connectionParams['dbType']
         if self.dbType == 'postgis':
+            # CREATE REQUEST ACCORDING TO AUTOCOMPLETE ACTION
+            print(sql)
             sql = CadastreCommon.setSearchPath(sql, connectionParams['schema'])
             sql = sql.replace('MyStringAgg', 'string_agg')
         else:

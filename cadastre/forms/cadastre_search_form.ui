@@ -219,7 +219,7 @@
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
             <layout class="QGridLayout" name="gridLayout_2">
-             <item row="0" column="3">
+             <item row="1" column="3">
               <widget class="QToolButton" name="btExportProprietaire">
                <property name="toolTip">
                 <string>Exporter le relevé de propriété</string>
