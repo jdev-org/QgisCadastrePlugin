@@ -930,6 +930,7 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
         self.btSelectionnerLieu.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'select.png')))
         self.btExportProprietaire.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'releve.png')))
         self.btExportParcelleProprietaire.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'releve.png')))
+        self.btResetCommuneProprietaire.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'delete.png')))
         self.btResetProprietaire.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'delete.png')))
         self.btResetParcelleProprietaire.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'delete.png')))
         self.btCentrerProprietaire.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'centrer.png')))
@@ -1078,6 +1079,27 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
                 'chosenFeature': None,
                 'connector': None,
                 'resetWidget': self.btResetParcelleProprietaire
+            },
+            'commune_proprietaire': {
+                'widget': self.liCommuneProprietaire,
+                'labelAttribute': 'tex2',
+                'table': 'geo_commune',
+                'geomCol': 'geom',
+                'sql': '',
+                'layer': None,
+                'request': None,
+                'attributes': ['ogc_fid', 'tex2', 'idu', 'geo_commune', 'geom', 'lot'],
+                'orderBy': ['tex2'],
+                'features': None,
+                'chosenFeature': None,
+                'resetWidget': self.btResetCommuneProprietaire,
+                'children': [
+                    {
+                        'key': 'section',
+                        'fkey': 'geo_commune',
+                        'getIfNoFeature': True
+                    }
+                ]
             }
         }
 
@@ -1169,6 +1191,7 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
 
         # setup some gui items
         self.setupSearchCombobox('commune', None, 'sql')
+        self.setupSearchCombobox('commune_proprietaire', None, 'sql')
         # self.setupSearchCombobox('section', None, 'sql')
 
         # Check majic content
@@ -1245,7 +1268,7 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
         if not self.hasMajicDataProp:
             self.qc.updateLog(
                 u"<b>Pas de données MAJIC propriétaires</b> -> désactivation de la recherche de propriétaires")
-
+       
     def setupSearchCombobox(self, combo, filterExpression=None, queryMode='qgis'):
         """
         Fil given combobox with data
@@ -1431,16 +1454,32 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
             sql += ' ORDER BY c.tex2, v.natvoi, v.libvoi'
 
         if key == 'proprietaire':
-            sql = " SELECT trim(ddenom) AS k, MyStringAgg(comptecommunal, ',') AS cc, dnuper"  # , c.ccocom"
-            sql += ' FROM proprietaire p'
-            # ~ sql+= ' INNER JOIN commune c ON c.ccocom = p.ccocom'
+            communePropCb = self.searchComboBoxes['commune_proprietaire']
+            attr = None
+            # get combo feature if selected
+            if 'chosenFeature' in communePropCb and communePropCb['chosenFeature'] is not None:
+                attr = communePropCb['chosenFeature']['geo_commune']
+            
+            # create request to get owners and filter on city if selected first
+            sql = " SELECT trim(ddenom) AS k, MyStringAgg(comptecommunal, ',') AS cc, dnuper"
+            if attr is not None:
+                sql += ", p.ccocom, c.commune"
+            sql += " FROM proprietaire p"
+            if attr is not None:
+                sql+= " INNER JOIN commune c ON c.ccocom = p.ccocom"
             sql += " WHERE 2>1"
             for sv in searchValues:
                 sql += " AND ddenom LIKE %s" % self.connector.quoteString('%' + sv + '%')
-            sql += ' GROUP BY dnuper, ddenom, dlign4'  # , c.ccocom'
-            sql += ' ORDER BY ddenom'  # , c.ccocom'
+            if attr is not None:
+                sql += " AND c.commune LIKE %s" % self.connector.quoteString('%' + attr + '%')
+            sql += ' GROUP BY dnuper, ddenom, dlign4'  
+            if attr is not None:
+                sql += " , p.ccocom, c.commune"
+            sql += ' ORDER BY ddenom'
         self.dbType = connectionParams['dbType']
         if self.dbType == 'postgis':
+            # CREATE REQUEST ACCORDING TO AUTOCOMPLETE ACTION
+            print(sql)
             sql = CadastreCommon.setSearchPath(sql, connectionParams['schema'])
             sql = sql.replace('MyStringAgg', 'string_agg')
         else:
