@@ -1457,7 +1457,7 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
             communePropCb = self.searchComboBoxes['commune_proprietaire']
             attr = None
             # To only use ddenom and search people OR use dnomus field
-            nameField = "gtoper='1' AND ddenom" if self.cbSearchNameBirth.isChecked() is True else "dnomus"
+            nameField = "gtoper='1' AND dnomlp" if self.cbSearchNameBirth.isChecked() is True else "dnomus"
             # get combo feature if selected
             if 'chosenFeature' in communePropCb and communePropCb['chosenFeature'] is not None:
                 attr = communePropCb['chosenFeature']['geo_commune']
