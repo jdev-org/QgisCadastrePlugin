@@ -1461,6 +1461,8 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
             sql += ' ORDER BY c.tex2, v.natvoi, v.libvoi'
 
         if key == 'proprietaire':
+            # To only use ddenom and search people OR use dnomus field
+            nameField = "gtoper='1' AND ddenom" if self.cbSearchNameBirth.isChecked() is True else "dnomus"
             sql = " SELECT trim(ddenom) AS k, MyStringAgg(comptecommunal, ',') AS cc, dnuper"  # , c.ccocom"
             if self.dbType == 'postgis':
                 sql += ' FROM "{}"."proprietaire" p'.format(connectionParams['schema'])
@@ -1469,7 +1471,7 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
             # ~ sql+= ' INNER JOIN commune c ON c.ccocom = p.ccocom'
             sql += " WHERE 2>1"
             for sv in searchValues:
-                sql += " AND ddenom LIKE %s" % self.connector.quoteString('%' + sv + '%')
+                sql += " AND %s LIKE %s" % (nameField, self.connector.quoteString('%' + sv + '%'))
             sql += ' GROUP BY dnuper, ddenom, dlign4'  # , c.ccocom'
             sql += ' ORDER BY ddenom'  # , c.ccocom'
         self.dbType = connectionParams['dbType']
