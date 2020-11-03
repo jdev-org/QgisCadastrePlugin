@@ -1,5 +1,10 @@
 
 SELECT Coalesce(ccodro_lib, '') || ' - ' || p.dnuper || ' - ' || trim(Coalesce(p.dqualp, '')) || ' ' || trim(Coalesce(p.ddenom, '')) AS mainprop,
+CASE 
+  WHEN trim(Coalesce(dnomus, '')) IS NOT trim(Coalesce(dnomlp, ''))
+  THEN ' - NÉ/E ' || Coalesce(dnomlp,'') || '- '
+  ELSE ''
+  END AS nomnaissance,
 CASE WHEN epxnee = 'NEE' THEN 'EP ' || trim(Coalesce(dnomlp, '')) || ' ' || trim(Coalesce(dprnlp, '')) ELSE '' END AS epousede,
 trim(Coalesce(p.dlign3, '')) || ' / ' || ltrim(trim(Coalesce(p.dlign4, '')), '0') || trim(Coalesce(p.dlign5, '')) || ' ' || trim(Coalesce(p.dlign6, '')) AS adrprop,
 CASE
@@ -11,4 +16,3 @@ FROM $schema"proprietaire" p
 INNER JOIN $schema"ccodro" cc ON cc.ccodro = p.ccodro
 WHERE 2>1
 $and
-

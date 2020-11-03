@@ -225,7 +225,7 @@ class cadastreExport:
         }
         self.mainTables = {
             'proprietaires_line': {
-                'names': ['mainprop', 'epousede', 'adrprop', 'nele'],
+                'names': ['mainprop', 'nomnaissance', 'epousede', 'adrprop', 'nele'],
                 'type': 'sql',
                 'keepContent': True,
                 'filter': 'comptecommunal',
