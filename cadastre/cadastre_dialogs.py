@@ -1485,8 +1485,8 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
             sql += ' ORDER BY c.tex2, v.natvoi, v.libvoi'
 
         if key == 'proprietaire':
-            # To only use ddenom and search people OR use dnomus field
-            nameField = "gtoper='1' AND ddenom" if self.cbSearchNameBirth.isChecked() is True else "dnomus"
+            # To only use dnomlp and search people OR use dnomus field
+            nameField = "trim(dnomlp) || trim(dprnus)" if self.cbSearchNameBirth.isChecked() is True else "trim(dnomus) || trim(dprnus)"
             # To search according to selected city
             communeProprioCb = self.searchComboBoxes['commune_proprietaire']
             city = None
