@@ -1501,7 +1501,10 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
             else:
                 sql += ' FROM proprietaire p'
             if city is not None:
-                sql += " INNER JOIN commune c ON c.ccocom = p.ccocom"
+                if self.dbType == 'postgis':
+                    sql += ' INNER JOIN "{}"."commune" c ON c.ccocom = p.ccocom'.format(connectionParams['schema'])
+                else :
+                    sql += ' INNER JOIN commune c ON c.ccocom = p.ccocom'.format(connectionParams['schema'])
             sql += " WHERE 2>1"
             for sv in searchValues:
                 sql += " AND %s LIKE %s" % (nameField, self.connector.quoteString('%' + sv + '%'))
