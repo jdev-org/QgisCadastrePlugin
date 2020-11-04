@@ -395,6 +395,14 @@ class cadastreImport(QObject):
                 }
             )
 
+
+            scriptList.append(
+                {
+                    'title': u'Ajout de la commune dans les étiquettes',
+                    'script': os.path.join(self.pScriptDir, 'labels_add_geo_commune.sql')
+                }
+            )
+
         # Run previously defined SQL queries
         for item in scriptList:
             if self.go:
