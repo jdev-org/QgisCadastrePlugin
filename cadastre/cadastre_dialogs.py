@@ -1487,17 +1487,32 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
         if key == 'proprietaire':
             # To only use ddenom and search people OR use dnomus field
             nameField = "gtoper='1' AND ddenom" if self.cbSearchNameBirth.isChecked() is True else "dnomus"
-            sql = " SELECT trim(ddenom) AS k, MyStringAgg(comptecommunal, ',') AS cc, dnuper"  # , c.ccocom"
+            # To search according to selected city
+            communeProprioCb = self.searchComboBoxes['commune_proprietaire']
+            city = None
+            # create request to get owners and filter on city if selected first
+            if 'chosenFeature' in communeProprioCb and communeProprioCb['chosenFeature'] is not None:
+                city = communeProprioCb['chosenFeature']['geo_commune']
+            sql = " SELECT trim(ddenom) AS k, MyStringAgg(comptecommunal, ',') AS cc, dnuper"
+            if city is not None:
+                sql += ", p.ccocom, c.commune"
             if self.dbType == 'postgis':
                 sql += ' FROM "{}"."proprietaire" p'.format(connectionParams['schema'])
             else:
                 sql += ' FROM proprietaire p'
-            # ~ sql+= ' INNER JOIN commune c ON c.ccocom = p.ccocom'
+            if city is not None:
+                sql+= " INNER JOIN commune c ON c.ccocom = p.ccocom"
             sql += " WHERE 2>1"
             for sv in searchValues:
                 sql += " AND %s LIKE %s" % (nameField, self.connector.quoteString('%' + sv + '%'))
-            sql += ' GROUP BY dnuper, ddenom, dlign4'  # , c.ccocom'
-            sql += ' ORDER BY ddenom'  # , c.ccocom'
+            if city is not None:
+                sql += " AND c.commune LIKE %s" % self.connector.quoteString('%' + city + '%')
+            sql += ' GROUP BY dnuper, ddenom, dlign4'
+            if city is not None:
+                sql += " , p.ccocom, c.commune"
+            sql += ' ORDER BY ddenom'
+            if city is not None:
+                sql += " , c.commune"
         self.dbType = connectionParams['dbType']
 
         # Update aggregate function in SQL
@@ -1508,6 +1523,8 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
         # self.qc.updateLog(sql)
 
         sql += ' LIMIT 20'
+
+        print(sql)
 
         [header, data, rowCount, ok] = CadastreCommon.fetchDataFromSqlQuery(connector, sql)
 
