@@ -949,6 +949,7 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
         self.btCentrerProprietaire.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'centrer.png')))
         self.btZoomerProprietaire.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'zoom.png')))
         self.btSelectionnerProprietaire.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'select.png')))
+        self.btResetCommuneProprietaire.setIcon(QIcon(os.path.join(plugin_dir, 'forms', 'icons', 'delete.png')))
 
         # common cadastre methods
         from .cadastre_dialogs import CadastreCommon
@@ -1092,6 +1093,27 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
                 'chosenFeature': None,
                 'connector': None,
                 'resetWidget': self.btResetParcelleProprietaire
+            },
+            'commune_proprietaire': {
+                'widget': self.liCommuneProprietaire,
+                'labelAttribute': 'tex2',
+                'table': 'geo_commune',
+                'geomCol': 'geom',
+                'sql': '',
+                'layer': None,
+                'request': None,
+                'attributes': ['ogc_fid', 'tex2', 'idu', 'geo_commune', 'geom', 'lot'],
+                'orderBy': ['tex2'],
+                'features': None,
+                'chosenFeature': None,
+                'resetWidget': self.btResetCommuneProprietaire,
+                'children': [
+                    {
+                        'key': 'section',
+                        'fkey': 'geo_commune',
+                        'getIfNoFeature': True
+                    }
+                ]
             }
         }
 
@@ -1185,6 +1207,7 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
 
         # setup some gui items
         self.setupSearchCombobox('commune', None, 'sql')
+        self.setupSearchCombobox('commune_proprietaire', None, 'sql')
         # self.setupSearchCombobox('section', None, 'sql')
 
         # Check majic content
