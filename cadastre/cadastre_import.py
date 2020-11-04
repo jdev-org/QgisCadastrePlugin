@@ -395,7 +395,6 @@ class cadastreImport(QObject):
                 }
             )
 
-
             scriptList.append(
                 {
                     'title': u'Ajout de la commune dans les étiquettes',
