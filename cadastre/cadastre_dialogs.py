@@ -1527,14 +1527,7 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
 
         sql += ' LIMIT 20'
 
-        print(sql)
-
         [header, data, rowCount, ok] = CadastreCommon.fetchDataFromSqlQuery(connector, sql)
-        print("=====QUERY - LOGS PLUGIN QGIS CADASTRE====")
-        print(header)
-        print(data)
-        print(rowCount)
-        print(ok)
 
         # Write message in log
         msg = u"%s résultats correpondent à '%s'" % (rowCount, searchValue)
