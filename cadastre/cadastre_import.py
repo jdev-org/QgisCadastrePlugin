@@ -705,15 +705,11 @@ class cadastreImport(QObject):
                 'divide': True
             }
         )
-
-        # insert geo_commune values into tables
-        scriptAddGeoComm = 'add_geo_commune_postgis.sql'
-        if self.dialog.dbType == 'postgis' :
-            scriptAddGeoComm = 'add_geo_commune_spatialite.sql'            
+          
         scriptList.append(
             {
                 'title': u'Ajout de la commune dans les étiquettes',
-                'script': os.path.join(self.pScriptDir, scriptAddGeoComm)
+                'script': os.path.join(self.pScriptDir, 'add_geo_commune_postgis.sql' )
             }
         )
 
