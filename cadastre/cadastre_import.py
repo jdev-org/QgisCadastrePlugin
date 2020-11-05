@@ -713,6 +713,12 @@ class cadastreImport(QObject):
             }
         )
 
+        scriptList.append(
+            {
+                'title': u'Ajout de la commune dans les étiquettes',
+                'script': os.path.join(self.pScriptDir, 'add_geo_commune.sql' )
+            }
+        )
         # ajout des unités foncières
         # seulement si on a des données MAJIC de propriétaire
         self.qc.checkDatabaseForExistingStructure()

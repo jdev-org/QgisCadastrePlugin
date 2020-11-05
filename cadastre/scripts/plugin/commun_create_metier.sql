@@ -1232,7 +1232,8 @@ CREATE TABLE geo_label
   ogr_angle double precision,
   ogr_font_size double precision,
   x_label numeric,
-  y_label numeric
+  y_label numeric,
+  geo_commune text
 );
 SELECT AddGeometryColumn ( current_schema::text, 'geo_label', 'geom', 2154 , 'POINT', 2 );
 
