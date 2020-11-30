@@ -1502,7 +1502,7 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
             # if checkbox is checked
             if searchByBirthName is True:
                 # search by birth name instead
-                nameString = "COALESCE(rtrim(dqualp),'')||' '||COALESCE(rtrim(dnomlp),'')||' '||COALESCE(rtrim(dprnus),'')"                
+                nameString = "COALESCE(rtrim(dqualp),'')||' '||COALESCE(rtrim(dnomlp),'')||' '||COALESCE(rtrim(dprnus),'')"
 
             # create request
             sql = f"SELECT {nameString} AS nom_naissance_usage, {aggregMethod}(comptecommunal, ',') AS cc, dnuper, p.ccocom, c.commune"
@@ -1513,13 +1513,13 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
                 sql += ' FROM proprietaire p INNER JOIN commune c ON c.ccocom = p.ccocom'
 
             sql += " WHERE 2>1"
-            
+
             for sv in searchValues:
                 sql += f" AND nom_naissance_usage LIKE '%{sv}%'"
                 # filter by city code
                 if city is not None:
                     sql += f" AND c.commune LIKE '%{city}%'"
-            
+
             sql += ' GROUP BY dnuper, nom_naissance_usage, dlign4 , p.ccocom, c.commune'
             sql += ' ORDER BY nom_naissance_usage'
         self.dbType = connectionParams['dbType']
