@@ -1485,46 +1485,46 @@ class CadastreSearchDialog(QDockWidget, SEARCH_FORM_CLASS):
             sql += ' ORDER BY c.tex2, v.natvoi, v.libvoi'
 
         if key == 'proprietaire':
-            # To only use dnomlp and search people OR use dnomus field
-            nameField = "trim(dnomlp) || trim(dprnus)" if self.cbSearchNameBirth.isChecked() is True else "trim(dnomus) || trim(dprnus)"
-            # To search according to selected city
+            # Update aggregate function in SQL
+            aggregMethod = 'string_agg' if self.dbType == 'postgis' else 'group_concat'
+
+            schema = connectionParams['schema']
+            searchByBirthName = self.cbSearchNameBirth.isChecked()
             communeProprioCb = self.searchComboBoxes['commune_proprietaire']
             city = None
-            # create request to get owners and filter on city if selected first
+
+            # if city was already selected
             if 'chosenFeature' in communeProprioCb and communeProprioCb['chosenFeature'] is not None:
                 city = communeProprioCb['chosenFeature']['geo_commune']
-            sql = " SELECT trim(ddenom) AS k, MyStringAgg(comptecommunal, ',') AS cc, dnuper"
-            if city is not None:
-                sql += ", p.ccocom, c.commune"
+
+            # search by common name by default
+            nameString = "COALESCE(rtrim(dqualp),'')||' '||COALESCE(rtrim(dnomus),'')||' '||COALESCE(rtrim(dprnus),'')"
+            # if checkbox is checked
+            if searchByBirthName is True:
+                # search by birth name instead
+                nameString = "COALESCE(rtrim(dqualp),'')||' '||COALESCE(rtrim(dnomlp),'')||' '||COALESCE(rtrim(dprnus),'')"                
+
+            # create request
+            sql = f"SELECT {nameString} AS nom_naissance_usage, {aggregMethod}(comptecommunal, ',') AS cc, dnuper, p.ccocom, c.commune"
+
             if self.dbType == 'postgis':
-                sql += ' FROM "{}"."proprietaire" p'.format(connectionParams['schema'])
+                sql += f' FROM "{schema}"."proprietaire" p INNER JOIN "{schema}"."commune" c ON c.ccocom = p.ccocom'
             else:
-                sql += ' FROM proprietaire p'
-            if city is not None:
-                if self.dbType == 'postgis':
-                    sql += ' INNER JOIN "{}"."commune" c ON c.ccocom = p.ccocom'.format(connectionParams['schema'])
-                else :
-                    sql += ' INNER JOIN commune c ON c.ccocom = p.ccocom'.format(connectionParams['schema'])
+                sql += ' FROM proprietaire p INNER JOIN commune c ON c.ccocom = p.ccocom'
+
             sql += " WHERE 2>1"
+            
             for sv in searchValues:
-                sql += " AND %s LIKE %s" % (nameField, self.connector.quoteString('%' + sv + '%'))
-            if city is not None:
-                sql += " AND c.commune LIKE %s" % self.connector.quoteString('%' + city + '%')
-            sql += ' GROUP BY dnuper, ddenom, dlign4'
-            if city is not None:
-                sql += " , p.ccocom, c.commune"
-            sql += ' ORDER BY ddenom'
-            if city is not None:
-                sql += " , c.commune"
+                sql += f" AND nom_naissance_usage LIKE '%{sv}%'"
+                # filter by city code
+                if city is not None:
+                    sql += f" AND c.commune LIKE '%{city}%'"
+            
+            sql += ' GROUP BY dnuper, nom_naissance_usage, dlign4 , p.ccocom, c.commune'
+            sql += ' ORDER BY nom_naissance_usage'
         self.dbType = connectionParams['dbType']
 
-        # Update aggregate function in SQL
-        if self.dbType == 'postgis':
-            sql = sql.replace('MyStringAgg', 'string_agg')
-        else:
-            sql = sql.replace('MyStringAgg', 'group_concat')
         # self.qc.updateLog(sql)
-
         sql += ' LIMIT 20'
 
         [header, data, rowCount, ok] = CadastreCommon.fetchDataFromSqlQuery(connector, sql)
